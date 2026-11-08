@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ควิซพระคัมภีร์ ผจญภัย</title>
+<meta name="theme-color" content="#2E0F1F">
+<meta name="description" content="เกมควิซพระคัมภีร์ 5 ด่าน มีจับเวลา คะแนน และกระดานอันดับ">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ควิซพระคัมภีร์">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1E8DC; --bg2:#E8DCCB; --surface:#FBF6EF; --ink:#2E0F1F; --muted:#6E5462;
+  --primary:#C2552F; --primary-deep:#8E3A1E; --on-primary:#FFF8F0;
+  --good:#3F8456; --good-deep:#2B5E3C; --bad:#B23A48; --bad-deep:#7E2632;
+  --gold:#E2A632; --gold-deep:#A87516; --line:#DCCBB6; --lock:#B9A796;
+  --shadow:rgba(46,15,31,.14);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1A0912; --bg2:#240E19; --surface:#2E1322; --ink:#F6ECE2; --muted:#C2A9B5;
+    --primary:#E0754C; --primary-deep:#9C4424; --on-primary:#1A0912;
+    --good:#6BBF85; --good-deep:#3E7D52; --bad:#E77484; --bad-deep:#A3404F;
+    --gold:#F0BE52; --gold-deep:#B07E1C; --line:#4A2537; --lock:#6A4A59;
+    --shadow:rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1A0912; --bg2:#240E19; --surface:#2E1322; --ink:#F6ECE2; --muted:#C2A9B5;
+  --primary:#E0754C; --primary-deep:#9C4424; --on-primary:#1A0912;
+  --good:#6BBF85; --good-deep:#3E7D52; --bad:#E77484; --bad-deep:#A3404F;
+  --gold:#F0BE52; --gold-deep:#B07E1C; --line:#4A2537; --lock:#6A4A59;
+  --shadow:rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0;min-height:100%;background:var(--bg2);color:var(--ink);
+  font-family:"IBM Plex Sans Thai","Leelawadee UI","Thonburi",system-ui,sans-serif;
+  font-size:16px;line-height:1.55;-webkit-tap-highlight-color:transparent;
+}
+.d{font-family:"Mitr","Leelawadee UI","Thonburi",system-ui,sans-serif}
+.app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 1px var(--line)}
+.view{flex:1;display:flex;flex-direction:column;padding:18px 18px 96px}
+.view[hidden]{display:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+svg{display:block}
+
+/* Chunky game buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  font-family:"Mitr",sans-serif;font-weight:500;font-size:19px;padding:14px 20px;border-radius:16px;
+  background:var(--primary);color:var(--on-primary);box-shadow:0 5px 0 var(--primary-deep);
+  transform:translateY(0);transition:transform .08s, box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--primary-deep)}
+.btn.soft{background:var(--surface);color:var(--ink);box-shadow:0 5px 0 var(--line)}
+.btn.soft:active{box-shadow:0 1px 0 var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* Top bar */
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:5px 12px 5px 8px;font-family:"Mitr",sans-serif;font-weight:500;font-size:15px}
+.chip svg{width:20px;height:20px}
+.icon-btn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--surface);border:2px solid var(--line)}
+.icon-btn svg{width:20px;height:20px}
+
+/* Home */
+.hero{margin:6px 0 18px;padding:26px 22px 22px;border-radius:24px;background:var(--ink);color:var(--bg);position:relative;overflow:hidden}
+.hero h1{font-family:"Mitr",sans-serif;font-weight:600;font-size:34px;line-height:1.25;margin:4px 0 6px}
+.hero p{margin:0;color:color-mix(in srgb,var(--bg) 75%,var(--ink));max-width:16rem}
+.hero .eyebrow{font-size:13px;letter-spacing:.12em;color:var(--gold);font-weight:600}
+.hero svg.art{position:absolute;right:-18px;bottom:-14px;width:150px;height:150px;opacity:.9}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.stat{background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px 8px;text-align:center}
+.stat b{display:block;font-family:"Mitr",sans-serif;font-weight:600;font-size:24px;line-height:1.2}
+.stat span{font-size:13px;color:var(--muted)}
+.player-row{display:flex;align-items:center;gap:12px;margin:18px 0 0;padding:12px 14px;background:var(--surface);border:2px solid var(--line);border-radius:16px}
+.avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-family:"Mitr",sans-serif;font-weight:600;font-size:19px;background:var(--gold);color:#2E0F1F;flex:none}
+.player-row .who{flex:1;min-width:0}
+.player-row .who b{display:block;font-family:"Mitr",sans-serif;font-weight:500}
+.player-row .who span{font-size:13px;color:var(--muted)}
+.link{color:var(--primary);font-weight:600;font-size:14px;padding:6px}
+
+/* Level map */
+.map-title{font-family:"Mitr",sans-serif;font-weight:600;font-size:26px;margin:0 0 2px}
+.map-sub{color:var(--muted);margin:0 0 8px}
+.path{position:relative;padding:12px 0 20px}
+.path svg.trail{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.node{position:relative;display:flex;flex-direction:column;align-items:center;width:150px;margin:0 auto 26px}
+.node .orb{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;font-family:"Mitr",sans-serif;font-weight:600;font-size:30px;
+  background:var(--primary);color:var(--on-primary);box-shadow:0 7px 0 var(--primary-deep),0 10px 20px var(--shadow);transition:transform .08s}
+.node button:active .orb{transform:translateY(5px);box-shadow:0 2px 0 var(--primary-deep)}
+.node.done .orb{background:var(--gold);color:#2E0F1F;box-shadow:0 7px 0 var(--gold-deep),0 10px 20px var(--shadow)}
+.node.locked .orb{background:var(--lock);color:var(--bg);box-shadow:0 7px 0 color-mix(in srgb,var(--lock) 70%,#000)}
+.node.locked .orb svg{width:30px;height:30px}
+.node .label{margin-top:12px;text-align:center;font-family:"Mitr",sans-serif;font-weight:500;font-size:16px;line-height:1.3}
+.node .label small{display:block;font-family:"IBM Plex Sans Thai",sans-serif;font-weight:400;color:var(--muted);font-size:13px}
+.stars{display:flex;gap:3px;margin-top:6px}
+.stars svg{width:20px;height:20px}
+.node.current .orb{outline:4px solid color-mix(in srgb,var(--primary) 35%,transparent);outline-offset:5px}
+.node .start-tag{position:absolute;top:-30px;background:var(--ink);color:var(--bg);font-family:"Mitr",sans-serif;font-size:13px;padding:3px 10px;border-radius:8px}
+.node .start-tag::after{content:"";position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-top-color:var(--ink);border-bottom:0}
+
+/* Quiz */
+.qtop{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.bar{flex:1;height:14px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--good);border-radius:99px;transition:width .35s ease}
+.qmeta{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.timer{position:relative;width:64px;height:64px}
+.timer svg{width:64px;height:64px;transform:rotate(-90deg)}
+.timer .tn{position:absolute;inset:0;display:grid;place-items:center;font-family:"Mitr",sans-serif;font-weight:600;font-size:22px;font-variant-numeric:tabular-nums}
+.timer.warn .tn{color:var(--bad)}
+.combo{font-family:"Mitr",sans-serif;font-weight:500;font-size:15px;color:var(--primary);min-height:1.5em}
+.qcard{background:var(--surface);border:2px solid var(--line);border-radius:22px;padding:20px 18px;margin-bottom:16px}
+.qcard .lv{font-size:13px;color:var(--muted);margin:0 0 6px}
+.qcard h2{font-family:"Mitr",sans-serif;font-weight:500;font-size:23px;line-height:1.4;margin:0}
+.answers{display:grid;gap:12px}
+.ans{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;border-radius:16px;
+  background:var(--surface);border:2px solid var(--line);box-shadow:0 4px 0 var(--line);font-weight:500;font-size:17px;transition:transform .08s,box-shadow .08s,opacity .2s}
+.ans:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.ans .k{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:var(--bg);font-family:"Mitr",sans-serif;font-weight:600}
+.ans .t{flex:1}
+.ans .mark{width:24px;height:24px;flex:none;opacity:0}
+.ans:disabled{cursor:default}
+.ans.right{background:var(--good);border-color:var(--good-deep);box-shadow:0 4px 0 var(--good-deep);color:#FFF8F0}
+.ans.right .k{background:var(--good-deep);color:#FFF8F0}
+.ans.right .mark,.ans.wrong .mark{opacity:1}
+.ans.wrong{background:var(--bad);border-color:var(--bad-deep);box-shadow:0 4px 0 var(--bad-deep);color:#FFF8F0}
+.ans.wrong .k{background:var(--bad-deep);color:#FFF8F0}
+.ans.gone{opacity:.25}
+.ans.dim{opacity:.55}
+.tools{display:flex;gap:10px;margin-top:16px}
+.tools .btn{font-size:16px;padding:11px 14px}
+.fb{position:fixed;left:50%;bottom:0;width:100%;max-width:480px;transform:translate(-50%,110%);transition:transform .28s cubic-bezier(.2,.9,.3,1.2);
+  padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));border-radius:22px 22px 0 0;z-index:20}
+.fb.show{transform:translate(-50%,0)}
+.fb.good{background:color-mix(in srgb,var(--good) 18%,var(--surface));border-top:3px solid var(--good)}
+.fb.bad{background:color-mix(in srgb,var(--bad) 14%,var(--surface));border-top:3px solid var(--bad)}
+.fb h3{font-family:"Mitr",sans-serif;font-weight:600;font-size:22px;margin:0 0 2px}
+.fb.good h3{color:var(--good-deep)} .fb.bad h3{color:var(--bad-deep)}
+:root[data-theme="dark"] .fb.good h3,:root[data-theme="dark"] .fb.bad h3{color:inherit}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .fb.good h3{color:var(--good)} :root:not([data-theme="light"]) .fb.bad h3{color:var(--bad)} }
+.fb p{margin:0 0 14px;color:var(--muted)}
+.fb .pts{font-family:"Mitr",sans-serif;font-weight:600;color:var(--ink)}
+.fb .btn.good-btn{background:var(--good);box-shadow:0 5px 0 var(--good-deep);color:#FFF8F0}
+.fb .btn.bad-btn{background:var(--bad);box-shadow:0 5px 0 var(--bad-deep);color:#FFF8F0}
+
+/* Results */
+.result{text-align:center;padding-top:20px}
+.result .bigstars{display:flex;justify-content:center;gap:8px;margin:10px 0 12px}
+.result .bigstars svg{width:68px;height:68px;transform:scale(0);animation:pop .45s cubic-bezier(.3,1.6,.5,1) forwards}
+.result .bigstars svg:nth-child(2){width:84px;height:84px;margin-top:-14px;animation-delay:.18s}
+.result .bigstars svg:nth-child(3){animation-delay:.36s}
+@keyframes pop{to{transform:scale(1)}}
+.result h2{font-family:"Mitr",sans-serif;font-weight:600;font-size:30px;margin:0}
+.result .score{font-family:"Mitr",sans-serif;font-weight:600;font-size:54px;line-height:1.1;color:var(--primary);margin:10px 0 2px;font-variant-numeric:tabular-nums}
+.result .note{color:var(--muted);margin:0 0 18px}
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.rgrid .stat b{font-size:20px}
+.stack{display:grid;gap:14px}
+.saved{font-size:13px;color:var(--muted);margin-top:12px;min-height:1.3em}
+
+/* Leaderboard */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:4px;margin:6px 0 16px}
+.seg button{padding:9px;border-radius:10px;font-family:"Mitr",sans-serif;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.podium{display:grid;grid-template-columns:1fr 1fr 1fr;align-items:end;gap:8px;margin-bottom:14px}
+.pod{text-align:center}
+.pod .avatar{margin:0 auto 6px;width:52px;height:52px;font-size:22px}
+.pod .nm{font-family:"Mitr",sans-serif;font-weight:500;font-size:14px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pod .pt{font-size:13px;color:var(--muted)}
+.pod .block{margin-top:8px;border-radius:12px 12px 4px 4px;display:grid;place-items:center;font-family:"Mitr",sans-serif;font-weight:600;font-size:22px;color:#2E0F1F}
+.pod.p1 .block{height:92px;background:var(--gold)} .pod.p2 .block{height:66px;background:color-mix(in srgb,var(--gold) 45%,var(--surface))} .pod.p3 .block{height:50px;background:color-mix(in srgb,var(--primary) 40%,var(--surface))}
+.rows{display:grid;gap:8px}
+.row{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:9px 12px}
+.row.me{border-color:var(--primary)}
+.row .rk{width:26px;text-align:center;font-family:"Mitr",sans-serif;font-weight:600;color:var(--muted)}
+.row .avatar{width:36px;height:36px;font-size:16px}
+.row .nm{flex:1;min-width:0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.row .pt{font-family:"Mitr",sans-serif;font-weight:600;font-variant-numeric:tabular-nums}
+.empty{text-align:center;color:var(--muted);padding:26px 10px}
+
+/* Bottom nav */
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:480px;display:grid;grid-template-columns:repeat(3,1fr);
+  background:var(--surface);border-top:2px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px));z-index:10}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px;border-radius:12px;font-size:12px;color:var(--muted);font-weight:500}
+.nav button svg{width:24px;height:24px}
+.nav button[aria-current="page"]{color:var(--primary);background:color-mix(in srgb,var(--primary) 12%,transparent)}
+.nav[hidden]{display:none}
+
+/* Modal */
+.modal{position:fixed;inset:0;background:color-mix(in srgb,var(--ink) 55%,transparent);display:grid;place-items:center;padding:20px;z-index:30}
+.modal[hidden]{display:none}
+.sheet{width:100%;max-width:400px;background:var(--surface);border-radius:22px;padding:22px}
+.sheet h3{font-family:"Mitr",sans-serif;font-weight:600;font-size:22px;margin:0 0 4px}
+.sheet p{color:var(--muted);margin:0 0 14px}
+.sheet input{width:100%;font:inherit;font-size:18px;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);margin-bottom:14px}
+.sheet input:focus{outline:none;border-color:var(--primary)}
+.players{display:grid;gap:8px;margin-bottom:14px;max-height:200px;overflow:auto}
+.players button{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:2px solid var(--line);text-align:left}
+.players button .avatar{width:32px;height:32px;font-size:14px}
+.float{position:fixed;left:50%;top:38%;transform:translate(-50%,0);font-family:"Mitr",sans-serif;font-weight:600;font-size:34px;color:var(--good);pointer-events:none;z-index:25;opacity:0}
+.float.go{animation:rise .9s ease-out forwards}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,10px) scale(.8)}20%{opacity:1;transform:translate(-50%,0) scale(1.1)}100%{opacity:0;transform:translate(-50%,-60px) scale(1)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HOME -->
+  <section class="view" id="v-home">
+    <div class="top">
+      <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z" fill="var(--gold)"/></svg><span id="h-stars">0</span></span>
+      <button class="icon-btn" id="themeBtn" aria-label="สลับโหมดสี"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button>
+    </div>
+    <div class="hero">
+      <div class="eyebrow">BIBLE QUEST</div>
+      <h1>ควิซพระคัมภีร์<br>ผจญภัย</h1>
+      <p>ผ่านห้าด่าน ตั้งแต่ปฐมกาลถึงคริสตจักรยุคแรก ตอบเร็วยิ่งได้คะแนนมาก</p>
+      <svg class="art" viewBox="0 0 150 150" aria-hidden="true">
+        <circle cx="90" cy="90" r="56" fill="none" stroke="var(--primary)" stroke-width="2" opacity=".6"/>
+        <g fill="none" stroke="var(--gold)" stroke-width="3" stroke-linecap="round">
+          <path d="M80 150 C80 120 76 100 66 72"/><path d="M88 150 C88 118 90 96 92 64"/><path d="M96 150 C98 122 106 100 118 78"/>
+        </g>
+        <g fill="var(--gold)"><ellipse cx="64" cy="66" rx="5" ry="11" transform="rotate(-20 64 66)"/><ellipse cx="72" cy="80" rx="5" ry="11" transform="rotate(20 72 80)"/><ellipse cx="60" cy="84" rx="5" ry="11" transform="rotate(-24 60 84)"/>
+        <ellipse cx="92" cy="56" rx="5" ry="11"/><ellipse cx="85" cy="72" rx="5" ry="11" transform="rotate(-22 85 72)"/><ellipse cx="99" cy="72" rx="5" ry="11" transform="rotate(22 99 72)"/>
+        <ellipse cx="120" cy="72" rx="5" ry="11" transform="rotate(28 120 72)"/><ellipse cx="110" cy="86" rx="5" ry="11" transform="rotate(-8 110 86)"/><ellipse cx="124" cy="90" rx="5" ry="11" transform="rotate(40 124 90)"/></g>
+      </svg>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="h-best">0</b><span>คะแนนรวม</span></div>
+      <div class="stat"><b id="h-done">0/5</b><span>ด่านที่ผ่าน</span></div>
+      <div class="stat"><b id="h-perfect">0</b><span>ด่านสามดาว</span></div>
+    </div>
+    <button class="btn" id="playBtn"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg><span id="playLabel">เริ่มเล่น</span></button>
+    <div class="player-row">
+      <div class="avatar" id="h-av">?</div>
+      <div class="who"><b id="h-name">ผู้เล่น</b><span>เล่นหลายคนบนเครื่องเดียวกันได้</span></div>
+      <button class="link" id="switchBtn">เปลี่ยนผู้เล่น</button>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="view" id="v-map" hidden>
+    <h2 class="map-title">แผนที่ด่าน</h2>
+    <p class="map-sub">ได้อย่างน้อยหนึ่งดาวเพื่อปลดล็อกด่านถัดไป</p>
+    <div class="path" id="path"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="view" id="v-quiz" hidden>
+    <div class="qtop">
+      <button class="icon-btn" id="quitBtn" aria-label="ออกจากด่าน"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+      <div class="bar" aria-hidden="true"><i id="q-bar"></i></div>
+      <span class="chip" aria-label="คะแนน"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z" fill="var(--gold)"/></svg><span id="q-score">0</span></span>
+    </div>
+    <div class="qmeta">
+      <div class="timer" id="timer"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" fill="none" stroke="var(--line)" stroke-width="7"/><circle id="t-arc" cx="32" cy="32" r="27" fill="none" stroke="var(--primary)" stroke-width="7" stroke-linecap="round" stroke-dasharray="169.6" stroke-dashoffset="0"/></svg><div class="tn" id="t-num">15</div></div>
+      <div class="combo" id="combo"></div>
+    </div>
+    <div class="qcard"><p class="lv" id="q-lv"></p><h2 id="q-text"></h2></div>
+    <div class="answers" id="answers"></div>
+    <div class="tools"><button class="btn soft" id="fiftyBtn">ตัดเหลือสองข้อ</button></div>
+  </section>
+
+  <!-- RESULT -->
+  <section class="view" id="v-result" hidden>
+    <div class="result">
+      <div class="bigstars" id="r-stars"></div>
+      <h2 id="r-title"></h2>
+      <div class="score" id="r-score">0</div>
+      <p class="note" id="r-note"></p>
+      <div class="rgrid">
+        <div class="stat"><b id="r-correct">0/6</b><span>ตอบถูก</span></div>
+        <div class="stat"><b id="r-combo">0</b><span>คอมโบสูงสุด</span></div>
+        <div class="stat"><b id="r-best">0</b><span>สถิติด่านนี้</span></div>
+      </div>
+      <div class="stack">
+        <button class="btn" id="nextBtn">ด่านถัดไป</button>
+        <button class="btn soft" id="retryBtn">เล่นด่านนี้อีกครั้ง</button>
+        <button class="btn soft" id="toBoardBtn">ดูอันดับ</button>
+      </div>
+      <p class="saved" id="r-saved"></p>
+    </div>
+  </section>
+
+  <!-- LEADERBOARD -->
+  <section class="view" id="v-board" hidden>
+    <h2 class="map-title">อันดับบนเครื่องนี้</h2>
+    <div class="seg" role="group" aria-label="เลือกกระดานอันดับ" hidden>
+      <button id="segLocal" aria-pressed="true">เครื่องนี้</button>
+      <button id="segOnline" aria-pressed="false">ออนไลน์</button>
+    </div>
+    <div id="board"></div>
+  </section>
+
+  <nav class="nav" id="nav">
+    <button data-go="home" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>หน้าแรก</button>
+    <button data-go="map"><svg viewBox="0 0 24 24"><path d="M9 4l-5 2v14l5-2 6 2 5-2V4l-5 2zM9 4v14M15 6v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>ด่าน</button>
+    <button data-go="board"><svg viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>อันดับ</button>
+  </nav>
+
+  <div class="fb" id="fb" role="status"><h3 id="fb-title"></h3><p id="fb-text"></p><button class="btn" id="fb-next">ต่อไป</button></div>
+  <div class="float" id="float"></div>
+
+  <div class="modal" id="nameModal" hidden>
+    <div class="sheet">
+      <h3>ใครกำลังเล่น</h3>
+      <p>ตั้งชื่อเล่นเพื่อเก็บคะแนนบนเครื่องนี้</p>
+      <div class="players" id="playerList"></div>
+      <input id="nameInput" maxlength="18" placeholder="ชื่อเล่นของคุณ" autocomplete="off">
+      <button class="btn" id="nameSave">เริ่มเลย</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LEVELS = [
+ {id:"l1", name:"ปฐมกาล", sub:"จุดเริ่มต้นของทุกสิ่ง", qs:[
+  {q:"พระเจ้าทรงหยุดพักจากการทรงสร้างในวันที่เท่าไร", a:"วันที่เจ็ด", w:["วันที่หก","วันที่สาม","วันที่แปด"], r:"ปฐมกาล 2:2"},
+  {q:"บุตรชายคนแรกของอาดัมและเอวาชื่ออะไร", a:"คาอิน", w:["อาแบล","เสท","เอโนค"], r:"ปฐมกาล 4:1"},
+  {q:"ใครสร้างเรือใหญ่เพื่อรอดจากน้ำท่วมโลก", a:"โนอาห์", w:["โมเสส","อับราฮัม","เอลียาห์"], r:"ปฐมกาล 6–8"},
+  {q:"บุตรที่อับราฮัมได้รับเมื่ออายุ 100 ปีชื่ออะไร", a:"อิสอัค", w:["อิชมาเอล","ยาโคบ","เอซาว"], r:"ปฐมกาล 21:5"},
+  {q:"ยาโคบได้รับชื่อใหม่จากพระเจ้าว่าอะไร", a:"อิสราเอล", w:["ยูดาห์","อับราฮัม","เลวี"], r:"ปฐมกาล 32:28"},
+  {q:"ใครถูกพี่ชายขายเป็นทาสจนไปอยู่ที่อียิปต์", a:"โยเซฟ", w:["เบนยามิน","ยูดาห์","รูเบน"], r:"ปฐมกาล 37"}]},
+ {id:"l2", name:"แผ่นดินแห่งพันธสัญญา", sub:"จากอียิปต์สู่บัลลังก์", qs:[
+  {q:"ใครนำชนชาติอิสราเอลออกจากอียิปต์", a:"โมเสส", w:["โยชูวา","อาโรน","โยเซฟ"], r:"อพยพ 3–14"},
+  {q:"พระบัญญัติที่ประทานบนภูเขาซีนายมีกี่ประการ", a:"10 ประการ", w:["7 ประการ","12 ประการ","5 ประการ"], r:"อพยพ 20"},
+  {q:"กำแพงเมืองใดพังลงหลังจากเดินรอบเมืองเจ็ดวัน", a:"เยรีโค", w:["บาบิโลน","นีนะเวห์","เยรูซาเล็ม"], r:"โยชูวา 6"},
+  {q:"ใครมีกำลังมหาศาลซึ่งผูกพันอยู่กับผมที่ไม่เคยถูกตัด", a:"แซมสัน", w:["กิเดโอน","ดาวิด","โกลิอัท"], r:"ผู้วินิจฉัย 16"},
+  {q:"ใครล้มโกลิอัทด้วยสลิงและก้อนหิน", a:"ดาวิด", w:["ซาอูล","แซมสัน","โยนาธาน"], r:"1 ซามูเอล 17"},
+  {q:"กษัตริย์องค์ใดทูลขอสติปัญญาและสร้างพระวิหาร", a:"ซาโลมอน", w:["ดาวิด","ซาอูล","เฮเซคียาห์"], r:"1 พงศ์กษัตริย์ 3, 6"}]},
+ {id:"l3", name:"ผู้เผยพระวจนะ", sub:"ถ้ำสิงห์ เตาไฟ และปลาใหญ่", qs:[
+  {q:"ผู้เผยพระวจนะคนใดถูกรับขึ้นไปในลมหมุน มีรถเพลิงปรากฏ", a:"เอลียาห์", w:["เอลีชา","อิสยาห์","เยเรมีย์"], r:"2 พงศ์กษัตริย์ 2:11"},
+  {q:"โยนาห์ถูกอะไรกลืนเข้าไป", a:"ปลาใหญ่", w:["งูใหญ่","สิงโต","นกอินทรี"], r:"โยนาห์ 1:17"},
+  {q:"ดาเนียลถูกโยนเข้าไปที่ไหนเพราะยังอธิษฐานต่อพระเจ้า", a:"ถ้ำสิงห์", w:["เตาไฟ","บ่อน้ำแห้ง","คุกใต้ดิน"], r:"ดาเนียล 6"},
+  {q:"ชัดรัค เมชัค และอาเบดเนโก ถูกโยนเข้าไปในที่ใด", a:"เตาไฟที่ลุกโชน", w:["ถ้ำสิงห์","ทะเลแดง","บ่อโคลน"], r:"ดาเนียล 3"},
+  {q:"กษัตริย์องค์ใดฝันเห็นรูปปั้นใหญ่ และดาเนียลแก้ความฝันให้", a:"เนบูคัดเนสซาร์", w:["ดาริอัส","ไซรัส","ฟาโรห์"], r:"ดาเนียล 2"},
+  {q:"เอสเธอร์ได้เป็นราชินีของกษัตริย์องค์ใด", a:"อาหสุเอรัส", w:["เนบูคัดเนสซาร์","ซาโลมอน","เฮโรด"], r:"เอสเธอร์ 2:17"}]},
+ {id:"l4", name:"ชีวิตของพระเยซู", sub:"จากเบธเลเฮมถึงแกลิลี", qs:[
+  {q:"พระเยซูประสูติที่เมืองใด", a:"เบธเลเฮม", w:["นาซาเร็ธ","เยรูซาเล็ม","คาเปอรนาอุม"], r:"มัทธิว 2:1"},
+  {q:"ใครให้บัพติศมาแก่พระเยซูที่แม่น้ำจอร์แดน", a:"ยอห์นผู้ให้บัพติศมา", w:["เปโตร","อันดรูว์","ยากอบ"], r:"มัทธิว 3:13–17"},
+  {q:"การอัศจรรย์ครั้งแรกที่งานแต่งงานในหมู่บ้านคานาคืออะไร", a:"เปลี่ยนน้ำเป็นเหล้าองุ่น", w:["รักษาคนตาบอด","เดินบนน้ำ","ทวีขนมปัง"], r:"ยอห์น 2:1–11"},
+  {q:"พระเยซูทรงเลี้ยงคนห้าพันคนด้วยอะไร", a:"ขนมปัง 5 ก้อน ปลา 2 ตัว", w:["ขนมปัง 7 ก้อน ปลา 5 ตัว","ขนมปัง 12 ก้อน","ปลา 10 ตัว"], r:"ยอห์น 6:9–13"},
+  {q:"ชายผู้ตายไปแล้วสี่วันและพระเยซูทรงทำให้เป็นขึ้นมาชื่ออะไร", a:"ลาซารัส", w:["ยาอีรัส","บารทิเมอัส","สเทเฟน"], r:"ยอห์น 11"},
+  {q:"คนเก็บภาษีตัวเตี้ยที่ปีนต้นไม้เพื่อดูพระเยซูชื่ออะไร", a:"ศักเคียส", w:["มัทธิว","นิโคเดมัส","บารทิเมอัส"], r:"ลูกา 19:1–10"}]},
+ {id:"l5", name:"กางเขนและคริสตจักร", sub:"ด่านสุดท้าย", qs:[
+  {q:"เปโตรปฏิเสธว่าไม่รู้จักพระเยซูกี่ครั้งก่อนไก่ขัน", a:"3 ครั้ง", w:["1 ครั้ง","2 ครั้ง","7 ครั้ง"], r:"ลูกา 22:54–62"},
+  {q:"ผู้ว่าราชการชาวโรมันที่ตัดสินพระเยซูคือใคร", a:"ปอนทิอัสปีลาต", w:["เฮโรด","คายาฟาส","ซีซาร์ออกัสตัส"], r:"มัทธิว 27"},
+  {q:"พระเยซูทรงเป็นขึ้นจากความตายในวันที่เท่าไร", a:"วันที่สาม", w:["วันที่เจ็ด","วันที่สี่สิบ","วันที่หนึ่ง"], r:"ลูกา 24:7"},
+  {q:"พระวิญญาณบริสุทธิ์เสด็จลงมาบนเหล่าสาวกในวันอะไร", a:"วันเพ็นเทคอสต์", w:["วันปัสกา","วันสะบาโต","วันอยู่เพิง"], r:"กิจการ 2"},
+  {q:"ผู้ที่กลับใจระหว่างทางไปเมืองดามัสกัสคือใคร", a:"เซาโล (เปาโล)", w:["บารนาบัส","สเทเฟน","ทิโมธี"], r:"กิจการ 9"},
+  {q:"หนังสือเล่มสุดท้ายของพระคัมภีร์คือเล่มใด", a:"วิวรณ์", w:["ยูดา","กิจการ","มาลาคี"], r:"ลำดับหนังสือในพระคัมภีร์"}]}
+];
+const QTIME = 15, KEYS = ["ก","ข","ค","ง"];
+const STAR = (on) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.8-4.9 4.6 1.3 6.5L12 17.2l-5.9 3.2 1.3-6.5L2.5 9.3l6.6-.8z" fill="${on?'var(--gold)':'var(--line)'}" stroke="${on?'var(--gold-deep)':'none'}" stroke-width="1"/></svg>`;
+const LOCK = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.4"/></svg>`;
+const CHECK = `<svg class="mark" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const CROSS = `<svg class="mark" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>`;
+const $ = id => document.getElementById(id);
+
+/* ---------- local store ---------- */
+const KEY = "bqa-v1";
+let store = { current:null, players:{} };
+try { const s = JSON.parse(localStorage.getItem(KEY) || "null"); if (s && s.players) store = s; } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
+function me(){ return store.current && store.players[store.current] ? store.players[store.current] : null; }
+function best(p, id){ return (p && p.best && p.best[id]) || null; }
+function totals(p){ let score=0, stars=0, done=0, perfect=0; LEVELS.forEach(l=>{ const b=best(p,l.id); if(b){ score+=b.score; stars+=b.stars; if(b.stars>0) done++; if(b.stars===3) perfect++; } }); return {score,stars,done,perfect}; }
+function unlocked(i){ if(i===0) return true; const b = best(me(), LEVELS[i-1].id); return !!(b && b.stars>0); }
+
+/* ---------- navigation ---------- */
+const views = ["home","map","quiz","result","board"];
+function go(v){
+  views.forEach(n => $("v-"+n).hidden = n!==v);
+  $("nav").hidden = v==="quiz";
+  document.querySelectorAll(".nav button").forEach(b => { if(b.dataset.go===v) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
+  window.scrollTo(0,0);
+  if(v==="home") renderHome(); if(v==="map") renderMap(); if(v==="board") renderBoard();
+}
+document.querySelectorAll(".nav button").forEach(b => b.onclick = () => go(b.dataset.go));
+
+/* ---------- theme ---------- */
+$("themeBtn").onclick = () => {
+  const root = document.documentElement, cur = root.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  root.dataset.theme = cur === "dark" ? "light" : "dark";
+  try { localStorage.setItem("bqa-theme", root.dataset.theme); } catch(e) {}
+};
+try { const t = localStorage.getItem("bqa-theme"); if(t) document.documentElement.dataset.theme = t; } catch(e) {}
+
+/* ---------- players ---------- */
+function initial(n){ return (n || "?").trim().charAt(0).toUpperCase() || "?"; }
+function openNames(){
+  const list = $("playerList"); list.innerHTML = "";
+  Object.keys(store.players).forEach(n => {
+    const b = document.createElement("button");
+    b.innerHTML = `<span class="avatar"></span><span></span>`;
+    b.children[0].textContent = initial(n); b.children[1].textContent = n;
+    b.onclick = () => { store.current = n; save(); closeNames(); };
+    list.appendChild(b);
+  });
+  list.hidden = !list.children.length;
+  $("nameInput").value = ""; $("nameModal").hidden = false;
+  setTimeout(() => $("nameInput").focus(), 50);
+}
+function closeNames(){ $("nameModal").hidden = true; renderHome(); }
+$("nameSave").onclick = () => {
+  const n = $("nameInput").value.trim().slice(0,18); if(!n) { $("nameInput").focus(); return; }
+  if(!store.players[n]) store.players[n] = { best:{} };
+  store.current = n; save(); closeNames();
+};
+$("nameInput").addEventListener("keydown", e => { if(e.key==="Enter") $("nameSave").click(); });
+$("switchBtn").onclick = openNames;
+
+/* ---------- home ---------- */
+function renderHome(){
+  const p = me(), t = totals(p);
+  $("h-stars").textContent = t.stars; $("h-best").textContent = t.score.toLocaleString("th-TH");
+  $("h-done").textContent = t.done + "/" + LEVELS.length; $("h-perfect").textContent = t.perfect;
+  $("h-name").textContent = store.current || "ยังไม่ได้ตั้งชื่อ"; $("h-av").textContent = initial(store.current);
+  $("playLabel").textContent = t.done ? "เล่นต่อ" : "เริ่มเล่น";
+}
+$("playBtn").onclick = () => { if(!me()) { openNames(); return; } go("map"); };
+
+/* ---------- map ---------- */
+function renderMap(){
+  const path = $("path"); path.innerHTML = "";
+  const p = me(); let firstOpen = -1;
+  LEVELS.forEach((l,i) => { const b = best(p,l.id); if(firstOpen<0 && unlocked(i) && !(b && b.stars>0)) firstOpen = i; });
+  const offsets = [0, 70, -70, 60, 0];
+  const pts = [];
+  LEVELS.forEach((l,i) => {
+    const b = best(p,l.id), open = unlocked(i);
+    const n = document.createElement("div");
+    n.className = "node" + (open ? "" : " locked") + (b && b.stars>0 ? " done" : "") + (i===firstOpen ? " current" : "");
+    n.style.transform = `translateX(${offsets[i]}px)`;
+    n.innerHTML = `${i===firstOpen ? '<span class="start-tag">เริ่มที่นี่</span>' : ''}<button aria-label=""><div class="orb">${open ? (i+1) : LOCK}</div></button><div class="label"></div><div class="stars">${[1,2,3].map(s=>STAR(b && b.stars>=s)).join("")}</div>`;
+    n.querySelector(".label").innerHTML = `<span></span><small></small>`;
+    n.querySelector(".label span").textContent = l.name; n.querySelector(".label small").textContent = l.sub;
+    const btn = n.querySelector("button");
+    btn.setAttribute("aria-label", `ด่าน ${i+1} ${l.name}` + (open ? "" : " ยังล็อกอยู่"));
+    btn.onclick = () => { if(open) startLevel(i); else { btn.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],{duration:260}); } };
+    path.appendChild(n);
+  });
+  requestAnimationFrame(() => {
+    const box = path.getBoundingClientRect();
+    const c = [...path.querySelectorAll(".orb")].map(o => { const r=o.getBoundingClientRect(); return [r.left-box.left+r.width/2, r.top-box.top+r.height/2]; });
+    let d = `M${c[0][0]} ${c[0][1]}`;
+    for(let i=1;i<c.length;i++){ const [x0,y0]=c[i-1],[x1,y1]=c[i]; d += ` C${x0} ${(y0+y1)/2} ${x1} ${(y0+y1)/2} ${x1} ${y1}`; }
+    const svg = document.createElementNS("http://www.w3.org/2000/svg","svg"); svg.setAttribute("class","trail");
+    svg.innerHTML = `<path d="${d}" fill="none" stroke="var(--line)" stroke-width="10" stroke-linecap="round" stroke-dasharray="2 18"/>`;
+    path.prepend(svg);
+  });
+}
+
+/* ---------- quiz ---------- */
+let G = null, raf = 0;
+function shuffle(a){ a=[...a]; for(let k=a.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [a[k],a[j]]=[a[j],a[k]]; } return a; }
+function startLevel(i){
+  if(!me()) { openNames(); return; }
+  const L = LEVELS[i];
+  G = { li:i, L, qs:shuffle(L.qs), qi:0, score:0, correct:0, combo:0, maxCombo:0, fifty:true, locked:false };
+  go("quiz"); $("fiftyBtn").disabled = false; showQ();
+}
+function showQ(){
+  const item = G.qs[G.qi];
+  $("q-bar").style.width = (G.qi / G.qs.length * 100) + "%";
+  $("q-score").textContent = G.score;
+  $("q-lv").textContent = `ด่าน ${G.li+1} ${G.L.name}  ข้อ ${G.qi+1}/${G.qs.length}`;
+  $("q-text").textContent = item.q;
+  $("combo").textContent = G.combo >= 2 ? `คอมโบ x${G.combo}` : "";
+  const box = $("answers"); box.innerHTML = "";
+  shuffle([item.a, ...item.w]).forEach((t,k) => {
+    const b = document.createElement("button"); b.className = "ans"; b.dataset.v = t;
+    b.innerHTML = `<span class="k">${KEYS[k]}</span><span class="t"></span>`;
+    b.querySelector(".t").textContent = t;
+    b.onclick = () => answer(b);
+    box.appendChild(b);
+  });
+  G.locked = false; G.t0 = performance.now(); tick();
+}
+function tick(){
+  cancelAnimationFrame(raf);
+  const loop = () => {
+    if(!G || G.locked) return;
+    const left = Math.max(0, QTIME - (performance.now() - G.t0)/1000);
+    G.left = left;
+    $("t-num").textContent = Math.ceil(left);
+    $("t-arc").setAttribute("stroke-dashoffset", (169.6 * (1 - left/QTIME)).toFixed(1));
+    $("timer").classList.toggle("warn", left <= 5);
+    $("t-arc").setAttribute("stroke", left <= 5 ? "var(--bad)" : "var(--primary)");
+    if(left <= 0) { answer(null); return; }
+    raf = requestAnimationFrame(loop);
+  };
+  raf = requestAnimationFrame(loop);
+}
+function answer(btn){
+  if(G.locked) return; G.locked = true; cancelAnimationFrame(raf);
+  const item = G.qs[G.qi], ok = !!btn && btn.dataset.v === item.a;
+  let pts = 0;
+  [...$("answers").children].forEach(b => {
+    b.disabled = true;
+    if(b.dataset.v === item.a){ b.classList.add("right"); b.insertAdjacentHTML("beforeend", CHECK); }
+    else if(b === btn){ b.classList.add("wrong"); b.insertAdjacentHTML("beforeend", CROSS); }
+    else if(!b.classList.contains("gone")) b.classList.add("dim");
+  });
+  if(ok){
+    G.correct++; G.combo++; G.maxCombo = Math.max(G.maxCombo, G.combo);
+    pts = 100 + Math.round(G.left * 10) + (G.combo >= 3 ? 50 : 0);
+    G.score += pts; $("q-score").textContent = G.score;
+    const f = $("float"); f.textContent = "+" + pts; f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+  } else G.combo = 0;
+  const fb = $("fb");
+  fb.className = "fb show " + (ok ? "good" : "bad");
+  $("fb-title").textContent = ok ? (G.combo >= 3 ? `เยี่ยม คอมโบ x${G.combo}` : "ถูกต้อง") : (btn ? "ยังไม่ถูก" : "หมดเวลา");
+  $("fb-text").innerHTML = ""; 
+  const line = document.createElement("span");
+  line.textContent = (ok ? "" : `คำตอบคือ ${item.a}  `) + `อ่านต่อ ${item.r}`;
+  $("fb-text").appendChild(line);
+  if(ok){ const s = document.createElement("span"); s.className = "pts"; s.textContent = `  +${pts} คะแนน`; $("fb-text").appendChild(s); }
+  $("fb-next").className = "btn " + (ok ? "good-btn" : "bad-btn");
+  $("fb-next").textContent = G.qi === G.qs.length - 1 ? "ดูผลลัพธ์" : "ข้อต่อไป";
+  $("fb-next").focus({preventScroll:true});
+}
+$("fb-next").onclick = () => {
+  $("fb").className = "fb";
+  G.qi++; if(G.qi < G.qs.length) showQ(); else finish();
+};
+$("fiftyBtn").onclick = () => {
+  if(!G || !G.fifty || G.locked) return; G.fifty = false; $("fiftyBtn").disabled = true;
+  const item = G.qs[G.qi];
+  shuffle([...$("answers").children].filter(b => b.dataset.v !== item.a)).slice(0,2).forEach(b => { b.classList.add("gone"); b.disabled = true; });
+};
+$("quitBtn").onclick = () => { if(G){ G.locked = true; cancelAnimationFrame(raf); } $("fb").className = "fb"; G = null; go("map"); };
+
+/* ---------- results ---------- */
+function starsFor(c, n){ const r = c/n; return r === 1 ? 3 : r >= 0.8 ? 2 : r >= 0.5 ? 1 : 0; }
+function finish(){
+  const n = G.qs.length, stars = starsFor(G.correct, n), p = me(), id = G.L.id;
+  const prev = best(p, id), isNew = !prev || G.score > prev.score;
+  if(!p.best) p.best = {};
+  p.best[id] = { score: Math.max(G.score, prev ? prev.score : 0), stars: Math.max(stars, prev ? prev.stars : 0) };
+  save();
+  $("r-stars").innerHTML = [1,2,3].map(s => STAR(stars >= s)).join("");
+  $("r-title").textContent = stars === 3 ? "สมบูรณ์แบบ" : stars === 2 ? "เก่งมาก" : stars === 1 ? "ผ่านด่าน" : "เกือบแล้ว";
+  $("r-score").textContent = G.score.toLocaleString("th-TH");
+  $("r-note").textContent = stars === 0 ? "ตอบถูกอย่างน้อย 3 ข้อเพื่อปลดล็อกด่านถัดไป" : isNew ? "สถิติใหม่ของด่านนี้" : `ด่าน ${G.li+1} ${G.L.name}`;
+  $("r-correct").textContent = `${G.correct}/${n}`; $("r-combo").textContent = G.maxCombo;
+  $("r-best").textContent = p.best[id].score.toLocaleString("th-TH");
+  const hasNext = G.li < LEVELS.length - 1 && unlocked(G.li + 1);
+  $("nextBtn").hidden = !hasNext;
+  const li = G.li;
+  $("nextBtn").onclick = () => startLevel(li + 1);
+  $("retryBtn").onclick = () => startLevel(li);
+  $("r-saved").textContent = "";
+  go("result");
+  pushOnline();
+}
+$("toBoardBtn").onclick = () => go("board");
+
+/* ---------- online leaderboard (optional) ---------- */
+let db = null, user = null, myId = null, online = { rows:null, state:"idle" }, unsub = null, boardMode = "local";
+(async () => {
+  try {
+    if(!(window.claude && window.claude.use)) return;
+    [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if(user) myId = await user.id();
+    if(db) subscribeBoard();
+  } catch(e) {}
+})();
+function subscribeBoard(){
+  if(unsub || !db) return;
+  online.state = "loading";
+  const timer = setTimeout(() => { if(online.state === "loading"){ online.state = "slow"; if(boardMode==="online") renderBoard(); } }, 10000);
+  try {
+    unsub = db.collection("scores").orderBy("total","desc").limit(50).onSnapshot(snap => {
+      if(!snap.metadata || !snap.metadata.fromCache) clearTimeout(timer);
+      online.rows = snap.docs.map(d => ({ id:d.id, ...d.data() })).filter(r => typeof r.total === "number");
+      online.state = "ready"; if(boardMode==="online" && !$("v-board").hidden) renderBoard();
+    }, () => { clearTimeout(timer); online.state = "error"; if(boardMode==="online") renderBoard(); });
+  } catch(e) { online.state = "error"; }
+}
+async function pushOnline(){
+  if(!db || !myId) return;
+  const p = me(); if(!p) return;
+  try {
+    const ref = db.doc("scores/" + myId);
+    const snap = await ref.get();
+    const cur = snap.exists ? (snap.data().levels || {}) : {};
+    const levels = { ...cur };
+    LEVELS.forEach(l => { const b = best(p, l.id); if(b && (!levels[l.id] || b.score > levels[l.id])) levels[l.id] = b.score; });
+    const total = Object.values(levels).reduce((s,v) => s + (+v || 0), 0);
+    const stars = LEVELS.reduce((s,l) => s + ((best(p,l.id)||{}).stars || 0), 0);
+    if(snap.exists && snap.data().total === total) { $("r-saved").textContent = "คะแนนออนไลน์เป็นปัจจุบันแล้ว"; return; }
+    await ref.set({ uid: myId, total, stars, levels, updatedAt: new Date().toISOString() });
+    $("r-saved").textContent = "บันทึกคะแนนลงกระดานออนไลน์แล้ว";
+  } catch(e) { $("r-saved").textContent = "บันทึกคะแนนออนไลน์ไม่ได้ในตอนนี้ คะแนนยังเก็บไว้บนเครื่องนี้"; }
+}
+
+/* ---------- leaderboard view ---------- */
+$("segLocal").onclick = () => { boardMode = "local"; renderBoard(); };
+$("segOnline").onclick = () => { boardMode = "online"; renderBoard(); };
+function avatarEl(name, src){ const a = document.createElement("div"); a.className = "avatar"; if(src){ a.style.background = "var(--surface)"; a.innerHTML = `<img alt="" src="" style="width:100%;height:100%;border-radius:50%;object-fit:cover">`; a.firstChild.src = src; } else a.textContent = initial(name); return a; }
+function drawBoard(list){
+  const host = $("board"); host.innerHTML = "";
+  if(!list.length){ const e = document.createElement("p"); e.className = "empty"; e.textContent = boardMode === "local" ? "ยังไม่มีคะแนน เริ่มเล่นด่านแรกได้เลย" : "ยังไม่มีใครส่งคะแนนออนไลน์"; host.appendChild(e); return; }
+  const pod = document.createElement("div"); pod.className = "podium";
+  [1,0,2].forEach(i => {
+    const r = list[i], c = document.createElement("div");
+    c.className = "pod p" + (i+1);
+    if(r){ c.appendChild(avatarEl(r.name, r.avatar)); const nm = document.createElement("div"); nm.className = "nm"; nm.textContent = r.name; const pt = document.createElement("div"); pt.className = "pt"; pt.textContent = r.total.toLocaleString("th-TH") + " คะแนน"; c.append(nm, pt); }
+    const bl = document.createElement("div"); bl.className = "block"; bl.textContent = r ? i+1 : ""; c.appendChild(bl);
+    pod.appendChild(c);
+  });
+  host.appendChild(pod);
+  const rows = document.createElement("div"); rows.className = "rows";
+  list.forEach((r, i) => {
+    const row = document.createElement("div"); row.className = "row" + (r.me ? " me" : "");
+    const rk = document.createElement("span"); rk.className = "rk"; rk.textContent = i+1;
+    const nm = document.createElement("span"); nm.className = "nm"; nm.textContent = r.name + (r.me ? " (คุณ)" : "");
+    const pt = document.createElement("span"); pt.className = "pt"; pt.textContent = r.total.toLocaleString("th-TH");
+    row.append(rk, avatarEl(r.name, r.avatar), nm, pt); rows.appendChild(row);
+  });
+  host.appendChild(rows);
+}
+async function renderBoard(){
+  $("segLocal").setAttribute("aria-pressed", boardMode === "local");
+  $("segOnline").setAttribute("aria-pressed", boardMode === "online");
+  if(boardMode === "local"){
+    const list = Object.keys(store.players).map(n => ({ name:n, total: totals(store.players[n]).score, me: n === store.current })).filter(r => r.total > 0).sort((a,b) => b.total - a.total);
+    drawBoard(list); return;
+  }
+  const host = $("board");
+  const msg = t => { host.innerHTML = ""; const e = document.createElement("p"); e.className = "empty"; e.textContent = t; host.appendChild(e); };
+  if(!db){ msg("กระดานออนไลน์ใช้ได้เมื่อเปิดเกมผ่านลิงก์ใน Claude และลงชื่อเข้าใช้"); return; }
+  if(online.state === "loading" || online.state === "idle"){ msg("กำลังโหลดอันดับ"); return; }
+  if(online.state === "slow" && !online.rows){ msg("ยังติดต่อกระดานออนไลน์ไม่ได้ ลองใหม่ภายหลัง"); return; }
+  if(online.state === "error" && !online.rows){ msg("โหลดกระดานออนไลน์ไม่ได้ในตอนนี้"); return; }
+  const rows = online.rows || [];
+  let profiles = {};
+  try { if(user && rows.length) profiles = await user.profiles(rows.map(r => r.id)); } catch(e) {}
+  if(boardMode !== "online") return;
+  drawBoard(rows.map(r => { const pr = profiles[r.id] || {}; return { name: pr.name || "ผู้เล่น", avatar: pr.avatarUrl || "", total: r.total, me: r.id === myId }; }));
+}
+
+/* ---------- install as app ---------- */
+if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+  window.addEventListener("load", () => { navigator.serviceWorker.register("sw.js").catch(() => {}); });
+}
+/* ---------- start ---------- */
+go("home");
+if(!me()) openNames();
+</script>
+</body>
+</html>
